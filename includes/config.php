@@ -1,6 +1,14 @@
 <?php
 
-$template = 'bootstrap4';
+$template = 'default';
+
+#See includes/social.php
+$social_medias = array('facebook', 'twitter', 'hatena', 'line');
+
+#!contents/index.html and set 1 to 4
+$index_type = 4;
+#Links per category
+$index_items = 5;
 
 ##########################
 
@@ -8,11 +16,8 @@ $lang = 'ja';
 
 $encoding = 'UTF-8';
 
-setlocale(LC_ALL, 'C.' . $encoding);
-
-#Downloading Multi-byte filename on Windows Internet Explorer Japanese edition
+#Download Multi-byte filename for IE
 $encoding_win = 'SJIS-win';
-
 
 ##########################
 
@@ -49,6 +54,9 @@ $use_similars = true;
 
 #Show Summary
 $use_summary = true;
+
+#Benchmark in footer
+$use_benchmark = true;
 
 ##########################
 
@@ -104,91 +112,30 @@ $number_of_pager = 5;
 #Similar articles
 $number_of_similars = 3;
 
-
-#Social icon px size
-$social_icon_size = 150;
-
 ##########################
-
 
 $n = PHP_EOL;
-
-
-##########################
-
-
-function r($path)
-{
-	return str_replace(array('%26', '%2F', '%5C', '%3A'), array('&amp;', '/', '/', ':'), rawurlencode($path));
-}
-
-function h($str)
-{
-	global $encoding;
-	return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, $encoding);
-}
-
-function size_unit($size)
-{
-	if ($size > 0)
-	{
-		$unit = array('B', 'KB', 'MB', 'GB');
-		return round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . $unit[$i];
-	}
-}
-
-function timestamp($file)
-{
-	return gmdate('D, d M Y H:i:s T', filemtime($file));
-}
-
-function is_ssl()
-{
-	if (isset($_SERVER['HTTPS']) && isset($_SERVER['SSL']) || isset($_SERVER['HTTP_X_SAKURA_FORWARDED_FOR']))
-		return true;
-}
-
-##########################
-
-
 $now = time();
-
-$port = getenv('SERVER_PORT') !== '80' ? ':' . getenv('SERVER_PORT') : '';
-
+$server_port = getenv('SERVER_PORT');
+$port = $server_port === '80' || $server_port === '443' ? '' : ':'. $server_port;
+$request_uri = getenv('REQUEST_URI');
 $server = getenv('SERVER_NAME');
-
 $dir = r(dirname(getenv('SCRIPT_NAME')));
-
 $addslash = $dir !== '/' ? '/' : '';
-
-$script = $dir . $addslash;
-
+$script = $dir. $addslash;
 $scheme = is_ssl() ? 'https://' : 'http://';
-
-$url = $scheme . $server . $port . $script;
-
+$url = $scheme. $server. $port. $script;
 $line_breaks = array("\r\n", "\n", "\r", '&#13;&#10;', '&#13;', '&#10;');
-
 $remote_addr = filter_var(getenv('REMOTE_ADDR'), FILTER_VALIDATE_IP);
-
 $user_agent = h(getenv('HTTP_USER_AGENT'));
-
 $user_agent_lang = h(getenv('HTTP_ACCEPT_LANGUAGE'));
-
 $token = bin2hex(openssl_random_pseudo_bytes(16));
-
 $glob_dir = 'contents/*/*/';
-
-$tpl_dir = 'templates/' . $template . '/';
-
-$css = $url . $tpl_dir . 'css/';
-
-$js = $url . $tpl_dir . 'js/';
-
+$tpl_dir = 'templates/'. $template. '/';
+$css = $url. $tpl_dir. 'css/';
+$js = $url. $tpl_dir. 'js/';
 $glob_imgs ='/*.{[jJ][pP][gG],[pP][nN][gG],[gG][iI][fF],[sS][vV][gG],[jJ][pP][eE][gG],[mM][pP]4,[oO][gG][gG],[wW][eE][bB][mM]}';
 
 ##########################
 
-
-if (is_file($lang_file = __DIR__ . '/lang/' . $lang . '.php'))
-	include_once $lang_file;
+if (is_file($lang_file = __DIR__. '/languages/'. $lang. '.php')) include $lang_file;
